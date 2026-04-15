@@ -29,6 +29,17 @@ diagnostic_report_*.txt
 # 旧的安装包（保留最新版本）
 图片压缩-1.0.0.pkg
 
-# 临时脚本
+# 临时和调试脚本
 install_user_level.sh
-/tmp/
+activate_workflow.sh
+check_conflict.sh
+create_simple_workflow.sh
+diagnose_workflow.sh
+fix_quick_action.sh
+force_activate.sh
+force_refresh_services.sh
+full_diagnostic.sh
+manual_install.sh
+update_version.sh
+upload_to_github.sh
+verify_installation.sh
