@@ -33,7 +33,7 @@
 
 ### 使用 PKG 安装包
 
-1. 下载最新的 [图片压缩-1.0.1.pkg](https://github.com/你的用户名/图片压缩/releases)
+1. 下载 [最新版本](https://github.com/SalvinTang/image_Compression/releases)
 2. 双击 PKG 文件
 3. 按照安装向导操作
 4. 输入管理员密码
