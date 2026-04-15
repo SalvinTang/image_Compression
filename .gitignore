@@ -1,0 +1,34 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Swift Build
+.build/
+*.xcodeproj
+*.xcworkspace
+DerivedData/
+*.swiftpm
+
+# Xcode
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+
+# 临时文件
+pkg_temp/
+*.log
+diagnostic_report_*.txt
+
+# 测试文件
+/tmp/
+
+# 已编译的可执行文件（会在构建时重新生成）
+图片压缩.workflow/Contents/Resources/ImageResizeDialog
+
+# 旧的安装包（保留最新版本）
+图片压缩-1.0.0.pkg
+
+# 临时脚本
+install_user_level.sh
+/tmp/
