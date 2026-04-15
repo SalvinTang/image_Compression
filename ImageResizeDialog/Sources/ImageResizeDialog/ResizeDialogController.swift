@@ -67,6 +67,9 @@ class ResizeDialogController: NSWindowController {
         panel.center()
 
         super.init(window: panel)
+        
+        // 设置窗口代理以处理关闭事件
+        panel.delegate = self
 
         setupUI()
         setupActions()
@@ -667,5 +670,20 @@ extension ResizeDialogController: NSTextFieldDelegate {
         } else if field === heightField {
             heightChanged(field)
         }
+    }
+}
+
+// MARK: - NSWindowDelegate
+
+extension ResizeDialogController: NSWindowDelegate {
+    /// 窗口即将关闭时调用
+    func windowWillClose(_ notification: Notification) {
+        // 用户点击关闭按钮时，退出应用
+        NSApplication.shared.terminate(nil)
+    }
+    
+    /// 窗口是否应该关闭（返回 true 允许关闭）
+    func windowShouldClose(_ sender: NSWindow) -> Bool {
+        return true
     }
 }
