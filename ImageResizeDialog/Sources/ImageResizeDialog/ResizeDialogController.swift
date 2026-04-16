@@ -64,6 +64,11 @@ class ResizeDialogController: NSWindowController {
         )
         panel.title = "图片压缩"
         panel.isFloatingPanel = true
+        
+        // 固定窗口大小，不允许调整
+        panel.minSize = NSSize(width: 210, height: 285)
+        panel.maxSize = NSSize(width: 210, height: 285)
+        
         panel.center()
 
         super.init(window: panel)
@@ -105,7 +110,7 @@ class ResizeDialogController: NSWindowController {
         compressionContainer.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(compressionContainer)
 
-        // 文件名标签（左对齐，自动适配颜色）
+        // 文件名标签（左对齐，自动适配颜色，长文件名省略显示）
         titleLabel.stringValue = generateDialogTitle(files: files)
         titleLabel.alignment = .left
         titleLabel.isEditable = false
@@ -113,6 +118,12 @@ class ResizeDialogController: NSWindowController {
         titleLabel.backgroundColor = .clear
         titleLabel.textColor = .labelColor  // 自动适配深色/浅色模式
         titleLabel.font = NSFont.systemFont(ofSize: 13, weight: .medium)
+        titleLabel.lineBreakMode = .byTruncatingMiddle  // 中间省略显示
+        titleLabel.maximumNumberOfLines = 1  // 单行显示
+        titleLabel.cell?.truncatesLastVisibleLine = true  // 确保截断
+        titleLabel.cell?.lineBreakMode = .byTruncatingMiddle  // Cell 级别的截断设置
+        titleLabel.cell?.wraps = false  // 不换行
+        titleLabel.usesSingleLineMode = true  // 使用单行模式
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(titleLabel)
 
@@ -251,6 +262,7 @@ class ResizeDialogController: NSWindowController {
             titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: m - upOffset),
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: m),
             titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -m),
+            titleLabel.widthAnchor.constraint(lessThanOrEqualToConstant: 180),  // 明确限制最大宽度
             
             // ── 分辨率容器 ──
             resolutionContainer.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: m - upOffset),

@@ -140,7 +140,7 @@ func calculateTargetSize(originalSize: CGSize, percentage: Double) -> CGSize {
 func generateDialogTitle(files: [URL]) -> String {
     switch files.count {
     case 0:
-        return "图片压切"
+        return "图片压缩"
     case 1:
         return files[0].lastPathComponent
     default:
