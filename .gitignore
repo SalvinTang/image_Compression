@@ -43,3 +43,7 @@ manual_install.sh
 update_version.sh
 upload_to_github.sh
 verify_installation.sh
+
+# 安装脚本和 PKG 包（在 scripts/ 目录中维护）
+install_embedded.sh
+图片压缩-*.pkg
