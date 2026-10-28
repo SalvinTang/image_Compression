@@ -6,9 +6,9 @@
 set -e
 
 PRODUCT_NAME="图片压缩"
-VERSION="1.0.2"
+VERSION="1.0.3"
 IDENTIFIER="com.imagecompress.pkg"
-PKG_NAME="${PRODUCT_NAME}-${VERSION}.pkg"
+PKG_NAME="pkg/${PRODUCT_NAME}-${VERSION}.pkg"
 
 echo "======================================"
 echo "  ${PRODUCT_NAME} PKG 打包脚本"
@@ -19,6 +19,7 @@ echo ""
 # 1. 清理并创建临时目录
 echo "▶ [1/6] 准备打包环境..."
 rm -rf pkg_temp
+mkdir -p pkg
 mkdir -p pkg_temp/payload/Library/Services
 mkdir -p pkg_temp/scripts
 echo "   ✓ 打包环境准备完成"
