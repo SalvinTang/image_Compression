@@ -22,6 +22,14 @@ enum Preset: String, CaseIterable {
     }
 }
 
+// MARK: - Dimension
+
+/// 主维度：决定多选等比缩放时以宽还是高为基准
+enum Dimension: Equatable {
+    case width
+    case height
+}
+
 // MARK: - ResizeMode
 
 /// 缩放模式
@@ -37,11 +45,14 @@ struct ProcessConfig {
     let resizeMode: ResizeMode
     let compress: Bool
     let quality: String  // JPEG 压缩质量："best", "high", "normal", "low"
-    
-    init(resizeMode: ResizeMode, compress: Bool, quality: String = "low") {
+    /// 多选等比缩放的主维度；为 nil 时按 resizeMode 中的精确宽高处理（单选模式）
+    let proportionalMaster: Dimension?
+
+    init(resizeMode: ResizeMode, compress: Bool, quality: String = "low", proportionalMaster: Dimension? = nil) {
         self.resizeMode = resizeMode
         self.compress = compress
         self.quality = quality
+        self.proportionalMaster = proportionalMaster
     }
 }
 
@@ -117,6 +128,26 @@ func calculateLinkedDimension(input: Int, inputIsWidth: Bool, originalSize: CGSi
         return Int((Double(input) / ratio).rounded())
     } else {
         return Int((Double(input) * ratio).rounded())
+    }
+}
+
+/// 按指定主维度等比计算目标宽高（用于多选模式，按每张图片各自长宽比缩放）
+/// - Parameters:
+///   - master: 主维度（.width 以宽为基准，.height 以高为基准）
+///   - value: 主维度的目标像素值
+///   - originalSize: 该张图片的原始尺寸
+/// - Returns: 目标 (width, height)，均四舍五入至整数像素且不小于 1
+func proportionalTarget(master: Dimension, value: Int, originalSize: CGSize) -> (width: Int, height: Int) {
+    guard originalSize.width > 0, originalSize.height > 0 else {
+        return (max(1, value), max(1, value))
+    }
+    switch master {
+    case .width:
+        let h = Int((Double(value) * Double(originalSize.height) / Double(originalSize.width)).rounded())
+        return (max(1, value), max(1, h))
+    case .height:
+        let w = Int((Double(value) * Double(originalSize.width) / Double(originalSize.height)).rounded())
+        return (max(1, w), max(1, value))
     }
 }
 

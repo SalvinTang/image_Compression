@@ -166,8 +166,23 @@ class ImageProcessor {
                 resizeMode: .custom(width: Int(targetSize.width), height: Int(targetSize.height)),
                 compress: config.compress
             )
-        case .custom:
-            finalConfig = config
+        case .custom(let w, let h):
+            // 多选等比模式：以主维度为基准，按每张图片各自长宽比计算目标尺寸，避免变形
+            if let master = config.proportionalMaster {
+                guard let originalSize = imageSize(for: file) else {
+                    return ProcessResult(sourceURL: file, outputURL: nil,
+                                         error: .sipsExecutionFailed(exitCode: -1, stderr: "无法读取图片尺寸"))
+                }
+                let value = (master == .width) ? w : h
+                let (tw, th) = proportionalTarget(master: master, value: value, originalSize: originalSize)
+                finalConfig = ProcessConfig(
+                    resizeMode: .custom(width: tw, height: th),
+                    compress: config.compress
+                )
+            } else {
+                // 单选模式：直接使用精确宽高
+                finalConfig = config
+            }
         }
 
         // 5. 检查是否需要缩放

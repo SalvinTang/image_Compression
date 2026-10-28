@@ -27,6 +27,12 @@ class ResizeDialogController: NSWindowController {
     /// 宽高比是否锁定（单张图片时可切换，多张图片时固定为 false）
     private var isAspectRatioLocked: Bool = true
 
+    /// 多选等比缩放的主维度（用户最后编辑的字段）；默认以宽为基准
+    private var proportionalMaster: Dimension = .width
+
+    /// 是否为输入框触发的编程式预设切换（避免覆盖用户正在输入的内容）
+    private var isProgrammaticPresetChange = false
+
     // MARK: - UI Elements
     
     // 容器视图
@@ -392,9 +398,23 @@ class ResizeDialogController: NSWindowController {
         if isMultipleFiles {
             isUpdatingLinkedField = true
             if preset == .custom {
-                // 自定义模式：显示 1024
-                widthField.stringValue = "1024"
-                heightField.stringValue = "1024"
+                // 自定义模式：基于主维度，按首图长宽比联动预览另一边
+                // （实际处理时每张图片按各自长宽比等比缩放，不会变形）
+                if let size = originalImageSize {
+                    if proportionalMaster == .width {
+                        // 宽为主：保持宽，联动高
+                        if validateDimension(widthField.stringValue) == .valid,
+                           let w = Int(widthField.stringValue) {
+                            heightField.stringValue = "\(calculateLinkedDimension(input: w, inputIsWidth: true, originalSize: size))"
+                        }
+                    } else {
+                        // 高为主：保持高，联动宽
+                        if validateDimension(heightField.stringValue) == .valid,
+                           let h = Int(heightField.stringValue) {
+                            widthField.stringValue = "\(calculateLinkedDimension(input: h, inputIsWidth: false, originalSize: size))"
+                        }
+                    }
+                }
                 applyFieldValidation(.valid, to: widthField)
                 applyFieldValidation(.valid, to: heightField)
             } else {
@@ -429,6 +449,17 @@ class ResizeDialogController: NSWindowController {
 
     @objc func presetChanged(_ sender: NSPopUpButton) {
         clearError()
+        // 仅当用户主动切换下拉菜单、且为多选模式时，重置为宽基准并赋予默认宽；
+        // 由输入框触发的编程式切换（isProgrammaticPresetChange）不重置，避免覆盖用户输入
+        if !isProgrammaticPresetChange, isMultipleFiles {
+            let selectedTitle = presetPopUp.titleOfSelectedItem ?? ""
+            if Preset(rawValue: selectedTitle) == .custom {
+                proportionalMaster = .width
+                isUpdatingLinkedField = true
+                widthField.stringValue = "1024"
+                isUpdatingLinkedField = false
+            }
+        }
         updateFieldsFromPreset()   // 预设切换时同步更新宽高
         updateConfirmButton()
     }
@@ -464,15 +495,24 @@ class ResizeDialogController: NSWindowController {
         guard !isUpdatingLinkedField else { return }
 
         // 手动输入 → 切换为"自定义"
+        if isMultipleFiles {
+            proportionalMaster = .width
+        }
+        isProgrammaticPresetChange = true
         presetPopUp.selectItem(withTitle: Preset.custom.rawValue)
+        isProgrammaticPresetChange = false
 
         let text = widthField.stringValue
         let state = validateDimension(text)
         applyFieldValidation(state, to: widthField)
 
-        // 多选模式：不联动，只验证
+        // 多选模式：以宽为主维度，按首图长宽比联动预览高（实际每张图片按各自比例等比缩放）
         if isMultipleFiles {
-            if state == .valid {
+            if state == .valid, let size = originalImageSize, let value = Int(text) {
+                isUpdatingLinkedField = true
+                heightField.stringValue = "\(calculateLinkedDimension(input: value, inputIsWidth: true, originalSize: size))"
+                applyFieldValidation(.valid, to: heightField)
+                isUpdatingLinkedField = false
                 clearError()
             } else {
                 showError(for: state)
@@ -509,15 +549,24 @@ class ResizeDialogController: NSWindowController {
         guard !isUpdatingLinkedField else { return }
 
         // 手动输入 → 切换为"自定义"
+        if isMultipleFiles {
+            proportionalMaster = .height
+        }
+        isProgrammaticPresetChange = true
         presetPopUp.selectItem(withTitle: Preset.custom.rawValue)
+        isProgrammaticPresetChange = false
 
         let text = heightField.stringValue
         let state = validateDimension(text)
         applyFieldValidation(state, to: heightField)
 
-        // 多选模式：不联动，只验证
+        // 多选模式：以高为主维度，按首图长宽比联动预览宽（实际每张图片按各自比例等比缩放）
         if isMultipleFiles {
-            if state == .valid {
+            if state == .valid, let size = originalImageSize, let value = Int(text) {
+                isUpdatingLinkedField = true
+                widthField.stringValue = "\(calculateLinkedDimension(input: value, inputIsWidth: false, originalSize: size))"
+                applyFieldValidation(.valid, to: widthField)
+                isUpdatingLinkedField = false
                 clearError()
             } else {
                 showError(for: state)
@@ -661,14 +710,19 @@ class ResizeDialogController: NSWindowController {
         }
 
         let resizeMode: ResizeMode
+        var proportionalMasterDim: Dimension?
         if preset == .custom {
             let w = Int(widthField.stringValue) ?? 0
             let h = Int(heightField.stringValue) ?? 0
             resizeMode = .custom(width: w, height: h)
+            // 多选模式：按主维度等比缩放每张图片；单选模式不传（使用精确宽高）
+            if isMultipleFiles {
+                proportionalMasterDim = self.proportionalMaster
+            }
         } else {
             resizeMode = .preset(percentage: preset.percentage ?? 1.0)
         }
-        return ProcessConfig(resizeMode: resizeMode, compress: compress, quality: quality)
+        return ProcessConfig(resizeMode: resizeMode, compress: compress, quality: quality, proportionalMaster: proportionalMasterDim)
     }
 }
 
