@@ -4,26 +4,24 @@ import Foundation
 
 /// 生成输出文件路径（无命名冲突版本）
 /// 输出格式：{stem}_resized.{ext}，与原图同目录
-/// 如果 compress=true，统一输出为 .jpg 格式
-func outputURL(for sourceURL: URL, compress: Bool = false) -> URL {
+/// - targetExtension：目标扩展名；为 nil 时沿用原图扩展名
+func outputURL(for sourceURL: URL, targetExtension: String? = nil) -> URL {
     let directory = sourceURL.deletingLastPathComponent()
     let stem = sourceURL.deletingPathExtension().lastPathComponent
-    
-    // 压缩时统一使用 .jpg 扩展名
-    let ext = compress ? "jpg" : sourceURL.pathExtension.lowercased()
+
+    let ext = targetExtension ?? sourceURL.pathExtension.lowercased()
     let filename = "\(stem)_resized.\(ext)"
     return directory.appendingPathComponent(filename)
 }
 
 /// 生成输出文件路径（命名冲突处理版本）
 /// 先尝试 {stem}_resized.{ext}，冲突时依次尝试 {stem}_resized_2.{ext}、_3.{ext}……
-/// 如果 compress=true，统一输出为 .jpg 格式
-func outputURL(for sourceURL: URL, existingPaths: Set<URL>, compress: Bool = false) -> URL {
+/// - targetExtension：目标扩展名；为 nil 时沿用原图扩展名
+func outputURL(for sourceURL: URL, existingPaths: Set<URL>, targetExtension: String? = nil) -> URL {
     let directory = sourceURL.deletingLastPathComponent()
     let stem = sourceURL.deletingPathExtension().lastPathComponent
-    
-    // 压缩时统一使用 .jpg 扩展名
-    let ext = compress ? "jpg" : sourceURL.pathExtension.lowercased()
+
+    let ext = targetExtension ?? sourceURL.pathExtension.lowercased()
 
     // 先尝试基础名称
     let base = directory.appendingPathComponent("\(stem)_resized.\(ext)")
@@ -78,38 +76,17 @@ class ImageProcessor {
 
     // MARK: - Private Helpers
 
-    /// 封装 Process 执行，返回退出码、stdout、stderr
-    private func runCommand(_ executable: String, arguments: [String]) -> (exitCode: Int32, stdout: String, stderr: String) {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: executable)
-        process.arguments = arguments
-
-        let stdoutPipe = Pipe()
-        let stderrPipe = Pipe()
-        process.standardOutput = stdoutPipe
-        process.standardError = stderrPipe
-
-        do {
-            try process.run()
-        } catch {
-            return (-1, "", error.localizedDescription)
-        }
-
-        process.waitUntilExit()
-
-        let stdoutData = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
-        let stderrData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
-        let stdout = String(data: stdoutData, encoding: .utf8) ?? ""
-        let stderr = String(data: stderrData, encoding: .utf8) ?? ""
-
-        return (process.terminationStatus, stdout, stderr)
+    /// 清理临时文件（忽略错误）
+    private func cleanupTemp(_ url: URL?) {
+        guard let url = url else { return }
+        try? FileManager.default.removeItem(at: url)
     }
 
     // MARK: - Public Interface
 
     /// 读取图片原始尺寸（使用 sips --getProperty pixelWidth/pixelHeight）
     func imageSize(for url: URL) -> CGSize? {
-        let result = runCommand("/usr/bin/sips", arguments: [
+        let result = CommandRunner.run("/usr/bin/sips", arguments: [
             "--getProperty", "pixelWidth",
             "--getProperty", "pixelHeight",
             url.path
@@ -143,16 +120,30 @@ class ImageProcessor {
             return ProcessResult(sourceURL: file, outputURL: nil, error: .fileNotFound(file))
         }
 
-        // 2. 计算输出路径（压缩时统一使用 .jpg 扩展名）
-        let output = outputURL(for: file, existingPaths: [], compress: config.compress)
+        // 2. 识别源格式
+        let format = ImageFormat.detect(from: file)
 
-        // 3. 检查目标目录写权限
+        // 3. 计算目标扩展名：
+        //    - 压缩 PNG → 保持 png（pngquant 保留透明通道，不转 JPEG）
+        //    - 压缩非 PNG → jpg（既有行为：统一转 JPEG）
+        //    - 不压缩 → 沿用原扩展名
+        let targetExtension: String?
+        if config.compress {
+            targetExtension = (format == .png) ? "png" : "jpg"
+        } else {
+            targetExtension = nil
+        }
+
+        // 4. 计算输出路径
+        let output = outputURL(for: file, existingPaths: [], targetExtension: targetExtension)
+
+        // 5. 检查目标目录写权限
         let directory = output.deletingLastPathComponent()
         guard FileManager.default.isWritableFile(atPath: directory.path) else {
             return ProcessResult(sourceURL: file, outputURL: nil, error: .writePermissionDenied(directory))
         }
 
-        // 4. 确定实际缩放尺寸
+        // 6. 确定实际缩放尺寸（与既有逻辑一致：预设需读原图尺寸；自定义多选按主维度等比）
         let finalConfig: ProcessConfig
         switch config.resizeMode {
         case .preset(let percentage):
@@ -164,7 +155,8 @@ class ImageProcessor {
             let targetSize = calculateTargetSize(originalSize: originalSize, percentage: percentage)
             finalConfig = ProcessConfig(
                 resizeMode: .custom(width: Int(targetSize.width), height: Int(targetSize.height)),
-                compress: config.compress
+                compress: config.compress,
+                quality: config.quality
             )
         case .custom(let w, let h):
             // 多选等比模式：以主维度为基准，按每张图片各自长宽比计算目标尺寸，避免变形
@@ -177,7 +169,8 @@ class ImageProcessor {
                 let (tw, th) = proportionalTarget(master: master, value: value, originalSize: originalSize)
                 finalConfig = ProcessConfig(
                     resizeMode: .custom(width: tw, height: th),
-                    compress: config.compress
+                    compress: config.compress,
+                    quality: config.quality
                 )
             } else {
                 // 单选模式：直接使用精确宽高
@@ -185,27 +178,36 @@ class ImageProcessor {
             }
         }
 
-        // 5. 检查是否需要缩放
+        // 7. 分发：
+        //    - PNG + 压缩 → pngquant（保持 PNG，保留透明）
+        //    - 其余 → 标准路径（缩放/复制 + 可选 sips 转 JPEG）
+        if format == .png && config.compress {
+            return processPngCompressed(file: file, config: finalConfig, output: output)
+        } else {
+            return processStandard(file: file, config: finalConfig, output: output, compress: config.compress)
+        }
+    }
+
+    /// 标准处理路径：缩放或复制，压缩时统一转 JPEG（既有行为）
+    private func processStandard(file: URL, config: ProcessConfig, output: URL, compress: Bool) -> ProcessResult {
+        // 检查是否需要缩放
         let needsResize: Bool
-        if case .custom(let width, let height) = finalConfig.resizeMode,
+        if case .custom(let width, let height) = config.resizeMode,
            let originalSize = imageSize(for: file) {
             needsResize = (Int(originalSize.width) != width || Int(originalSize.height) != height)
         } else {
             needsResize = true
         }
 
-        // 6. 执行缩放或复制
+        // 执行缩放或复制
         if needsResize {
-            // 需要缩放：使用 sips 缩放命令
-            let sipsArgs = buildSipsArguments(config: finalConfig, inputPath: file.path, outputPath: output.path)
-            let sipsResult = runCommand("/usr/bin/sips", arguments: sipsArgs)
-
+            let sipsArgs = buildSipsArguments(config: config, inputPath: file.path, outputPath: output.path)
+            let sipsResult = CommandRunner.run("/usr/bin/sips", arguments: sipsArgs)
             guard sipsResult.exitCode == 0 else {
                 return ProcessResult(sourceURL: file, outputURL: nil,
                                      error: .sipsExecutionFailed(exitCode: sipsResult.exitCode, stderr: sipsResult.stderr))
             }
         } else {
-            // 不需要缩放：直接复制文件
             do {
                 try FileManager.default.copyItem(at: file, to: output)
             } catch {
@@ -214,17 +216,83 @@ class ImageProcessor {
             }
         }
 
-        // 7. 压缩处理（统一转换为 JPEG 格式）
-        if config.compress {
-            // 无论原格式是什么，都转换为 JPEG 并压缩
+        // 压缩处理（非 PNG：统一转换为 JPEG）
+        if compress {
             // quality 可选值："best", "high", "normal", "low"
-            let _ = runCommand("/usr/bin/sips", arguments: [
+            let _ = CommandRunner.run("/usr/bin/sips", arguments: [
                 "-s", "format", "jpeg",
                 "-s", "formatOptions", config.quality,
                 output.path
             ])
         }
 
+        return ProcessResult(sourceURL: file, outputURL: output, error: nil)
+    }
+
+    /// PNG + 压缩处理路径：先 sips 缩放到临时 PNG，再 pngquant 压缩为最终 PNG。
+    /// pngquant 未写出时（质量不达标 / 不值得转换 / 二进制缺失）回退输出已缩放的 PNG，保证仍有产物。
+    private func processPngCompressed(file: URL, config: ProcessConfig, output: URL) -> ProcessResult {
+        let quality = config.quality
+
+        // 判断是否需要缩放
+        let needsResize: Bool
+        if case .custom(let width, let height) = config.resizeMode,
+           let originalSize = imageSize(for: file) {
+            needsResize = (Int(originalSize.width) != width || Int(originalSize.height) != height)
+        } else {
+            needsResize = true
+        }
+
+        // 准备喂给 pngquant 的工作 PNG
+        var workingURL: URL
+        var tempFile: URL?
+        if needsResize {
+            // 缩放到临时 PNG（避免 pngquant 读写同一文件）
+            tempFile = output.deletingLastPathComponent()
+                .appendingPathComponent(".pngquant_tmp_\(UUID().uuidString).png")
+            workingURL = tempFile!
+            let sipsArgs = buildSipsArguments(config: config, inputPath: file.path, outputPath: workingURL.path)
+            let sipsResult = CommandRunner.run("/usr/bin/sips", arguments: sipsArgs)
+            if sipsResult.exitCode != 0 {
+                cleanupTemp(tempFile)
+                return ProcessResult(sourceURL: file, outputURL: nil,
+                                     error: .sipsExecutionFailed(exitCode: sipsResult.exitCode, stderr: sipsResult.stderr))
+            }
+        } else {
+            // 不需缩放：直接用原图
+            workingURL = file
+        }
+
+        // pngquant 压缩（写 output）
+        let compressor = PngQuantCompressor()
+        let (_, _, stderr) = compressor.compress(input: workingURL, output: output, quality: quality)
+        let outputExists = FileManager.default.fileExists(atPath: output.path)
+
+        // output 已存在：pngquant 成功写入（或 output 本就存在被跳过）——视为成功
+        if outputExists {
+            cleanupTemp(tempFile)
+            return ProcessResult(sourceURL: file, outputURL: output, error: nil)
+        }
+
+        // pngquant 未写出 output（exit 99 质量不达标 / --skip-if-larger / 二进制缺失）。
+        // 回退：输出已缩放的 PNG（未压缩），保证仍有产物。
+        do {
+            if let temp = tempFile, FileManager.default.fileExists(atPath: temp.path) {
+                try FileManager.default.copyItem(at: temp, to: output)
+            } else {
+                try FileManager.default.copyItem(at: file, to: output)
+            }
+        } catch {
+            cleanupTemp(tempFile)
+            return ProcessResult(sourceURL: file, outputURL: nil,
+                                 error: .sipsExecutionFailed(exitCode: -1, stderr: "pngquant 回退复制失败: \(stderr) \(error.localizedDescription)"))
+        }
+
+        cleanupTemp(tempFile)
+        guard FileManager.default.fileExists(atPath: output.path) else {
+            return ProcessResult(sourceURL: file, outputURL: nil,
+                                 error: .sipsExecutionFailed(exitCode: -1, stderr: "pngquant 未生成输出且回退失败"))
+        }
         return ProcessResult(sourceURL: file, outputURL: output, error: nil)
     }
 

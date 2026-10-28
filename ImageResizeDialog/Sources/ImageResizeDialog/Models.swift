@@ -22,6 +22,38 @@ enum Preset: String, CaseIterable {
     }
 }
 
+// MARK: - ImageFormat
+
+/// 图片源格式（按扩展名识别，用于决定压缩方式）
+enum ImageFormat: String {
+    case png
+    case jpeg
+    case webp
+    case gif
+    case tiff
+    case unknown
+
+    /// 根据文件扩展名识别格式（小写）
+    static func detect(from url: URL) -> ImageFormat {
+        switch url.pathExtension.lowercased() {
+        case "png":           return .png
+        case "jpg", "jpeg":   return .jpeg
+        case "webp":          return .webp
+        case "gif":           return .gif
+        case "tif", "tiff":   return .tiff
+        default:              return .unknown
+        }
+    }
+
+    /// 该格式是否原生支持透明通道
+    var supportsAlpha: Bool {
+        switch self {
+        case .png, .webp, .tiff, .gif: return true
+        case .jpeg, .unknown: return false
+        }
+    }
+}
+
 // MARK: - Dimension
 
 /// 主维度：决定多选等比缩放时以宽还是高为基准
@@ -160,6 +192,25 @@ func calculateTargetSize(originalSize: CGSize, percentage: Double) -> CGSize {
     let targetWidth  = (originalSize.width  * percentage).rounded()
     let targetHeight = (originalSize.height * percentage).rounded()
     return CGSize(width: targetWidth, height: targetHeight)
+}
+
+// MARK: - PNG Compression Parameters
+
+/// 将 UI 质量档映射为 pngquant 的 --quality/--speed 参数
+/// 质量档取值与 JPEG 一致："best" / "normal" / "low"
+/// - "best":   --quality=85-95 --speed 1（接近无损，低于 85 不压缩）
+/// - "low":    --quality=50-70 --speed 6（更激进、更快）
+/// - "normal": --quality=65-80（默认推荐区间）
+/// 固定附加参数（--strip / --skip-if-larger / -o）由调用方在 PngQuantCompressor 中拼接
+func pngQuantArguments(quality: String) -> [String] {
+    switch quality {
+    case "best":
+        return ["--quality=85-95", "--speed", "1"]
+    case "low":
+        return ["--quality=50-70", "--speed", "6"]
+    default:
+        return ["--quality=65-80"]
+    }
 }
 
 // MARK: - Dialog Title
