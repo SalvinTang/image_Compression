@@ -12,12 +12,17 @@ images/
 !README.md
 !LICENSE
 
-# 放行目录
-!图片压缩.workflow/
-!图片压缩.workflow/**
-
+# 放行源码（精确放行，避免误含 .build 等构建产物）
 !ImageResizeDialog/
-!ImageResizeDialog/**
+!ImageResizeDialog/Package.swift
+!ImageResizeDialog/Sources/
+!ImageResizeDialog/Sources/**
+
+# 放行工作流配置（二进制为构建产物，不放行）
+!图片压缩.workflow/
+!图片压缩.workflow/Contents/
+!图片压缩.workflow/Contents/Info.plist
+!图片压缩.workflow/Contents/document.wflow
 
 !image/
 !image/**
@@ -25,3 +30,9 @@ images/
 !scripts/
 !scripts/**
 .kiro/
+
+# 系统杂项
+.DS_Store
+
+# 仅本地使用的安装脚本（不推送到仓库）
+install_user_level.sh
