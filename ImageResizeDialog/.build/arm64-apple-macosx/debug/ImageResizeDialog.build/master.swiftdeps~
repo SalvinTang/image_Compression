@@ -1,0 +1,11 @@
+version: "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)"
+options: "4ee2f90f5afffbdafdcf2a15c8405da0"
+build_time: [1793196975, 41738000]
+inputs:
+  "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/AppDelegate.swift": [1775888384, 977164889]
+  "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/CommandRunner.swift": [1793196754, 405808059]
+  "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/ImageProcessor.swift": [1793196842, 86732018]
+  "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/Models.swift": [1793196748, 623147137]
+  "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/PngQuantCompressor.swift": [1793196884, 847296845]
+  "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/ResizeDialogController.swift": [1793194606, 671959196]
+  "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/main.swift": [1793196956, 303781670]

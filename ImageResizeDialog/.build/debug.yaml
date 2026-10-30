@@ -1,0 +1,81 @@
+client:
+  name: basic
+  file-system: device-agnostic
+tools: {}
+targets:
+  "ImageResizeDialog-debug.exe": ["<ImageResizeDialog-debug.exe>"]
+  "ImageResizeDialog-debug.module": ["<ImageResizeDialog-debug.module>"]
+  "PackageStructure": ["<PackageStructure>"]
+  "main": ["<ImageResizeDialog-debug.exe>","<ImageResizeDialog-debug.module>"]
+  "test": ["<ImageResizeDialog-debug.exe>","<ImageResizeDialog-debug.module>"]
+default: "main"
+nodes:
+  "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/":
+    is-directory-structure: true
+    content-exclusion-patterns: [".git",".build"]
+  "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog":
+    is-mutated: true
+commands:
+  "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog-entitlement.plist":
+    tool: write-auxiliary-file
+    inputs: ["<entitlement-plist>","<com.apple.security.get-task-allow>"]
+    outputs: ["/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog-entitlement.plist"]
+    description: "Write auxiliary file /Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog-entitlement.plist"
+
+  "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/sources":
+    tool: write-auxiliary-file
+    inputs: ["<sources-file-list>","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/AppDelegate.swift","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/CommandRunner.swift","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/ImageProcessor.swift","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/Models.swift","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/PngQuantCompressor.swift","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/ResizeDialogController.swift","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/main.swift"]
+    outputs: ["/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/sources"]
+    description: "Write auxiliary file /Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/sources"
+
+  "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.product/Objects.LinkFileList":
+    tool: write-auxiliary-file
+    inputs: ["<link-file-list>","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/AppDelegate.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/CommandRunner.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/ImageProcessor.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/Models.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/PngQuantCompressor.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/ResizeDialogController.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/main.swift.o"]
+    outputs: ["/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.product/Objects.LinkFileList"]
+    description: "Write auxiliary file /Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.product/Objects.LinkFileList"
+
+  "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/swift-version--1AB21518FC5DEDBE.txt":
+    tool: write-auxiliary-file
+    inputs: ["<swift-get-version>","/Library/Developer/CommandLineTools/usr/bin/swiftc"]
+    outputs: ["/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/swift-version--1AB21518FC5DEDBE.txt"]
+    always-out-of-date: "true"
+    description: "Write auxiliary file /Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/swift-version--1AB21518FC5DEDBE.txt"
+
+  "<ImageResizeDialog-debug.exe>":
+    tool: phony
+    inputs: ["<ImageResizeDialog-debug.exe-CodeSigning>"]
+    outputs: ["<ImageResizeDialog-debug.exe>"]
+
+  "<ImageResizeDialog-debug.module>":
+    tool: phony
+    inputs: ["/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/AppDelegate.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/CommandRunner.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/ImageProcessor.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/Models.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/PngQuantCompressor.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/ResizeDialogController.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/main.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.swiftmodule"]
+    outputs: ["<ImageResizeDialog-debug.module>"]
+
+  "C.ImageResizeDialog-debug.exe":
+    tool: shell
+    inputs: ["/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/AppDelegate.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/CommandRunner.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/ImageProcessor.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/Models.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/PngQuantCompressor.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/ResizeDialogController.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/main.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.product/Objects.LinkFileList"]
+    outputs: ["/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog"]
+    description: "Linking ./.build/arm64-apple-macosx/debug/ImageResizeDialog"
+    args: ["/Library/Developer/CommandLineTools/usr/bin/swiftc","-L","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug","-o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog","-module-name","ImageResizeDialog","-emit-executable","-Xlinker","-alias","-Xlinker","_ImageResizeDialog_main","-Xlinker","_main","-Xlinker","-rpath","-Xlinker","@loader_path","@/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.product/Objects.LinkFileList","-target","arm64-apple-macosx12.0","-Xlinker","-add_ast_path","-Xlinker","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.swiftmodule","-sdk","/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk","-g"]
+
+  "C.ImageResizeDialog-debug.exe-entitlements":
+    tool: shell
+    inputs: ["/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog-entitlement.plist"]
+    outputs: ["<ImageResizeDialog-debug.exe-CodeSigning>"]
+    description: "Applying debug entitlements to ./.build/arm64-apple-macosx/debug/ImageResizeDialog"
+    args: ["codesign","--force","--sign","-","--entitlements","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog-entitlement.plist","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog"]
+
+  "C.ImageResizeDialog-debug.module":
+    tool: shell
+    inputs: ["/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/AppDelegate.swift","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/CommandRunner.swift","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/ImageProcessor.swift","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/Models.swift","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/PngQuantCompressor.swift","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/ResizeDialogController.swift","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/main.swift","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/swift-version--1AB21518FC5DEDBE.txt","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/sources"]
+    outputs: ["/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/AppDelegate.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/CommandRunner.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/ImageProcessor.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/Models.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/PngQuantCompressor.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/ResizeDialogController.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/main.swift.o","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.swiftmodule"]
+    description: "Compiling Swift Module 'ImageResizeDialog' (7 sources)"
+    args: ["/Library/Developer/CommandLineTools/usr/bin/swiftc","-module-name","ImageResizeDialog","-emit-dependencies","-emit-module","-emit-module-path","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.swiftmodule","-output-file-map","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/output-file-map.json","-incremental","-c","@/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ImageResizeDialog.build/sources","-I","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug","-target","arm64-apple-macosx12.0","-swift-version","5","-enable-batch-mode","-index-store-path","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/index/store","-Onone","-enable-testing","-j10","-DSWIFT_PACKAGE","-DDEBUG","-module-cache-path","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/debug/ModuleCache","-parseable-output","-Xfrontend","-entry-point-function-name","-Xfrontend","ImageResizeDialog_main","-sdk","/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk","-g","-Xcc","-isysroot","-Xcc","/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk","-Xcc","-fPIC","-Xcc","-g","-package-name","imageresizedialog"]
+
+  "PackageStructure":
+    tool: package-structure-tool
+    inputs: ["/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Package.swift","/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Package.resolved"]
+    outputs: ["<PackageStructure>"]
+    description: "Planning build"
+    allow-missing-inputs: true
+

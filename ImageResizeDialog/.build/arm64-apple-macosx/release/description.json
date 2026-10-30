@@ -1,0 +1,308 @@
+{
+  "builtTestProducts" : [
+
+  ],
+  "copyCommands" : {
+
+  },
+  "explicitTargetDependencyImportCheckingMode" : {
+    "none" : {
+
+    }
+  },
+  "generatedSourceTargetSet" : [
+
+  ],
+  "pluginDescriptions" : [
+
+  ],
+  "swiftCommands" : {
+    "C.ImageResizeDialog-release.module" : {
+      "executable" : "/Library/Developer/CommandLineTools/usr/bin/swiftc",
+      "fileList" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/sources",
+      "importPath" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/AppDelegate.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/CommandRunner.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/ImageProcessor.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/Models.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/PngQuantCompressor.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/ResizeDialogController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/main.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/swift-version--1AB21518FC5DEDBE.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/sources"
+        }
+      ],
+      "isLibrary" : false,
+      "moduleName" : "ImageResizeDialog",
+      "moduleOutputPath" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.swiftmodule",
+      "objects" : [
+        "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/AppDelegate.swift.o",
+        "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/CommandRunner.swift.o",
+        "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/ImageProcessor.swift.o",
+        "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/Models.swift.o",
+        "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/PngQuantCompressor.swift.o",
+        "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/ResizeDialogController.swift.o",
+        "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/main.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx12.0",
+        "-swift-version",
+        "5",
+        "-O",
+        "-j10",
+        "-DSWIFT_PACKAGE",
+        "-module-cache-path",
+        "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-Xfrontend",
+        "-entry-point-function-name",
+        "-Xfrontend",
+        "ImageResizeDialog_main",
+        "-sdk",
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "imageresizedialog"
+      ],
+      "outputFileMapPath" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/AppDelegate.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/CommandRunner.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/ImageProcessor.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/Models.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/PngQuantCompressor.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/ResizeDialogController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/main.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.swiftmodule"
+        }
+      ],
+      "sources" : [
+        "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/AppDelegate.swift",
+        "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/CommandRunner.swift",
+        "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/ImageProcessor.swift",
+        "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/Models.swift",
+        "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/PngQuantCompressor.swift",
+        "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/ResizeDialogController.swift",
+        "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/main.swift"
+      ],
+      "tempsPath" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build",
+      "wholeModuleOptimization" : true
+    }
+  },
+  "swiftFrontendCommands" : {
+
+  },
+  "swiftTargetScanArgs" : {
+    "ImageResizeDialog" : [
+      "/Library/Developer/CommandLineTools/usr/bin/swiftc",
+      "-module-name",
+      "ImageResizeDialog",
+      "-package-name",
+      "imageresizedialog",
+      "-whole-module-optimization",
+      "-num-threads",
+      "10",
+      "-c",
+      "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/AppDelegate.swift",
+      "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/CommandRunner.swift",
+      "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/ImageProcessor.swift",
+      "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/Models.swift",
+      "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/PngQuantCompressor.swift",
+      "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/ResizeDialogController.swift",
+      "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/main.swift",
+      "-I",
+      "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release",
+      "-target",
+      "arm64-apple-macosx12.0",
+      "-swift-version",
+      "5",
+      "-O",
+      "-j10",
+      "-DSWIFT_PACKAGE",
+      "-module-cache-path",
+      "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-Xfrontend",
+      "-entry-point-function-name",
+      "-Xfrontend",
+      "ImageResizeDialog_main",
+      "-sdk",
+      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "imageresizedialog",
+      "-driver-use-frontend-path",
+      "/Library/Developer/CommandLineTools/usr/bin/swiftc"
+    ]
+  },
+  "targetDependencyMap" : {
+    "ImageResizeDialog" : [
+
+    ]
+  },
+  "testDiscoveryCommands" : {
+
+  },
+  "testEntryPointCommands" : {
+
+  },
+  "writeCommands" : {
+    "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/AppDelegate.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/CommandRunner.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/ImageProcessor.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/Models.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/PngQuantCompressor.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/ResizeDialogController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/Sources/ImageResizeDialog/main.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/sources"
+    },
+    "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/AppDelegate.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/CommandRunner.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/ImageProcessor.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/Models.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/PngQuantCompressor.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/ResizeDialogController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.build/main.swift.o"
+        }
+      ],
+      "outputFilePath" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/ImageResizeDialog.product/Objects.LinkFileList"
+    },
+    "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/swift-version--1AB21518FC5DEDBE.txt" : {
+      "alwaysOutOfDate" : true,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<swift-get-version>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Library/Developer/CommandLineTools/usr/bin/swiftc"
+        }
+      ],
+      "outputFilePath" : "/Users/salvin/Salvin/VibeCoding/image_Compression/ImageResizeDialog/.build/arm64-apple-macosx/release/swift-version--1AB21518FC5DEDBE.txt"
+    }
+  }
+}
