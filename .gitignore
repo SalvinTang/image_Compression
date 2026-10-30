@@ -2,10 +2,9 @@
 *
 */
 
-# 明确忽略的目录（构建产物、文档、截图，不在仓库中维护）
+# 明确忽略的目录（构建产物、文档，不在仓库中维护；截图 images/ 放行供 README 引用）
 pkg/
 docs/
-images/
 
 # 放行必要文件
 !.gitignore
@@ -24,8 +23,8 @@ images/
 !图片压缩.workflow/Contents/Info.plist
 !图片压缩.workflow/Contents/document.wflow
 
-!image/
-!image/**
+!images/
+!images/**
 
 !scripts/
 !scripts/**
