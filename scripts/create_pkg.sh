@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # 图片压缩工具 PKG 打包脚本
-# 创建标准的 macOS 安装包（含内置 pngquant，目标机无需安装 brew）
+# 创建标准的 macOS 安装包（内置 pngquant + cwebp，目标机无需安装 brew）
 
 set -e
 
 PRODUCT_NAME="图片压缩"
-VERSION="1.0.4"
+VERSION="1.1.0"
 IDENTIFIER="com.imagecompress.pkg"
 PKG_NAME="pkg/${PRODUCT_NAME}-${VERSION}.pkg"
 
@@ -75,6 +75,117 @@ bundle_pngquant() {
     echo "   ✓ pngquant 已捆绑并 ad-hoc 重签"
 }
 
+# ---- cwebp 捆绑：从 brew 提取二进制与全部依赖库，重写 rpath 并 ad-hoc 重签 ----
+# cwebp 依赖链（含传递依赖）：
+#   cwebp → libwebpdemux.2 + libwebp.7 + libsharpyuv.0 + libpng16.16 + libjpeg.8 + libtiff.6
+#   libtiff.6 → libwebp.7 + libzstd.1 + liblzma.5 + libjpeg.8（传递依赖，需一并捆绑）
+#   libpng16.16 已由 bundle_pngquant 捆绑，此处复用
+# 目标布局（与可执行文件同目录 Resources/）：
+#   Resources/cwebp
+#   Resources/lib/libwebp.7.dylib / libwebpdemux.2.dylib / libsharpyuv.0.dylib
+#   Resources/lib/libjpeg.8.dylib / libtiff.6.dylib / libzstd.1.dylib / liblzma.5.dylib
+# 系统库 libz/libSystem 无需捆绑
+
+# 重写单个二进制的所有非系统依赖路径 → @loader_path/<lib_prefix><basename>
+# - lib_prefix：二进制在 Resources/ 时传 "lib/"（依赖在 Resources/lib/）；
+#               二进制本身在 Resources/lib/ 时传 ""（依赖同目录）
+# 仅重写非系统库（/opt/homebrew、@rpath 等）；系统库（/usr/lib、/System）保持不变
+rewrite_deps() {
+    local bin="$1"
+    local lib_prefix="$2"
+    local binname
+    binname=$(basename "$bin")
+    # 设置身份（dylib 需要；可执行文件无害）
+    install_name_tool -id "@loader_path/${lib_prefix}${binname}" "$bin" 2>/dev/null
+    # 列出依赖并逐一重写（while-read + here-string 兼容 bash/zsh，避免 word-splitting 差异）
+    local deps dep depname
+    deps=$(otool -L "$bin" 2>/dev/null | awk 'NR>1 && $1 != "" {print $1}')
+    while IFS= read -r dep; do
+        [ -z "$dep" ] && continue
+        depname=$(basename "$dep")
+        # 跳过系统库
+        case "$dep" in
+            /usr/lib/*|/System/*) continue ;;
+        esac
+        install_name_tool -change "$dep" "@loader_path/${lib_prefix}${depname}" "$bin" 2>/dev/null
+    done <<< "$deps"
+}
+
+bundle_cwebp() {
+    local target_dir="$1"  # 资源目录，即 Resources/
+
+    # 定位 brew 安装的 cwebp 及各依赖库（Apple Silicon / Intel 均兼容）
+    local WEBP_PREFIX JPEG_PREFIX TIFF_PREFIX ZSTD_PREFIX XZ_PREFIX
+    WEBP_PREFIX=$(brew --prefix webp 2>/dev/null || true)
+    JPEG_PREFIX=$(brew --prefix jpeg-turbo 2>/dev/null || true)
+    TIFF_PREFIX=$(brew --prefix libtiff 2>/dev/null || true)
+    ZSTD_PREFIX=$(brew --prefix zstd 2>/dev/null || true)
+    XZ_PREFIX=$(brew --prefix xz 2>/dev/null || true)
+
+    if [ -z "$WEBP_PREFIX" ] || [ ! -x "$WEBP_PREFIX/bin/cwebp" ]; then
+        echo "❌ 错误：未找到 brew 安装的 cwebp。"
+        echo "   请先执行：brew install webp"
+        echo "   （打包机需安装 Homebrew 及 webp/jpeg-turbo/libtiff/zstd/xz，目标机无需）"
+        exit 1
+    fi
+
+    local SRC_BIN="$WEBP_PREFIX/bin/cwebp"
+    # libwebp/libwebpdemux/libsharpyuv 均随 webp formula 提供
+    local SRC_LIBWEBP="$WEBP_PREFIX/lib/libwebp.7.dylib"
+    local SRC_DEMUX="$WEBP_PREFIX/lib/libwebpdemux.2.dylib"
+    local SRC_SHARYUV="$WEBP_PREFIX/lib/libsharpyuv.0.dylib"
+    local SRC_JPEG="$JPEG_PREFIX/lib/libjpeg.8.dylib"
+    local SRC_TIFF="$TIFF_PREFIX/lib/libtiff.6.dylib"
+    local SRC_ZSTD="$ZSTD_PREFIX/lib/libzstd.1.dylib"
+    local SRC_LZMA="$XZ_PREFIX/lib/liblzma.5.dylib"
+
+    # 校验依赖库齐全（libpng16.16 已由 bundle_pngquant 捆绑，此处不重复复制）
+    local missing=0
+    for f in "$SRC_LIBWEBP" "$SRC_DEMUX" "$SRC_SHARYUV" "$SRC_JPEG" "$SRC_TIFF" "$SRC_ZSTD" "$SRC_LZMA"; do
+        if [ ! -f "$f" ]; then
+            echo "   ⚠ 缺失依赖库：$f"
+            missing=1
+        fi
+    done
+    if [ "$missing" -eq 1 ]; then
+        echo "❌ 错误：cwebp 依赖库缺失。"
+        echo "   请执行：brew install webp jpeg-turbo libtiff zstd xz"
+        exit 1
+    fi
+
+    echo "   源二进制: $SRC_BIN"
+    echo "   源依赖:   libwebp/libwebpdemux/libsharpyuv (webp) + libjpeg (jpeg-turbo) + libtiff + libzstd + liblzma"
+    echo "             （libpng16.16 复用 pngquant 捆绑的副本）"
+
+    mkdir -p "$target_dir/lib"
+    cp "$SRC_BIN" "$target_dir/cwebp"
+    cp "$SRC_LIBWEBP" "$target_dir/lib/"
+    cp "$SRC_DEMUX" "$target_dir/lib/"
+    cp "$SRC_SHARYUV" "$target_dir/lib/"
+    cp "$SRC_JPEG" "$target_dir/lib/"
+    cp "$SRC_TIFF" "$target_dir/lib/"
+    cp "$SRC_ZSTD" "$target_dir/lib/"
+    cp "$SRC_LZMA" "$target_dir/lib/"
+    chmod +x "$target_dir/cwebp"
+
+    # 重写 cwebp 及其所有依赖库的依赖路径
+    # cwebp 在 Resources/ → 依赖用 @loader_path/lib/<basename>
+    # 依赖库在 Resources/lib/ → 彼此用 @loader_path/<basename>（同目录）
+    rewrite_deps "$target_dir/cwebp" "lib/"
+    for lib in libwebp.7.dylib libwebpdemux.2.dylib libsharpyuv.0.dylib libjpeg.8.dylib libtiff.6.dylib libzstd.1.dylib liblzma.5.dylib; do
+        rewrite_deps "$target_dir/lib/$lib" ""
+    done
+
+    # install_name_tool 会破坏原 adhoc 签名，导致运行被内核 SIGKILL(exit 137)。
+    # 必须 ad-hoc 重签（无需开发者证书）。
+    codesign -s - --force "$target_dir/cwebp" 2>/dev/null
+    for lib in libwebp.7.dylib libwebpdemux.2.dylib libsharpyuv.0.dylib libjpeg.8.dylib libtiff.6.dylib libzstd.1.dylib liblzma.5.dylib; do
+        codesign -s - --force "$target_dir/lib/$lib" 2>/dev/null
+    done
+
+    echo "   ✓ cwebp 已捆绑并 ad-hoc 重签（含 7 个依赖库）"
+}
+
 # 1. 清理并创建临时目录
 echo "▶ [1/7] 准备打包环境..."
 rm -rf pkg_temp
@@ -99,11 +210,13 @@ cp -R 图片压缩.workflow pkg_temp/payload/Library/Services/
 echo "   ✓ 载荷准备完成"
 echo ""
 
-# 4. 捆绑 pngquant（含依赖库 + rpath 重写 + ad-hoc 重签）
-echo "▶ [4/7] 捆绑 pngquant..."
+# 4. 捆绑 pngquant + cwebp（含依赖库 + rpath 重写 + ad-hoc 重签）
+echo "▶ [4/7] 捆绑 pngquant + cwebp..."
 PAYLOAD_RESOURCES="pkg_temp/payload/Library/Services/图片压缩.workflow/Contents/Resources"
 bundle_pngquant "$PAYLOAD_RESOURCES"
 echo "   ✓ pngquant 捆绑完成"
+bundle_cwebp "$PAYLOAD_RESOURCES"
+echo "   ✓ cwebp 捆绑完成"
 echo ""
 
 # 5. 创建安装前脚本
@@ -178,7 +291,8 @@ echo "  4. 安装完成后立即可用"
 echo ""
 echo "  特点："
 echo "  ✅ 系统级安装到 /Library/Services/"
-echo "  ✅ 内置 pngquant，PNG 压缩无需额外安装"
+echo "  ✅ 内置 pngquant + cwebp，PNG/WebP 压缩无需额外安装"
+echo "  ✅ 输入什么格式，导出即保持该格式（PNG/JPEG/HEIC/WebP/GIF/TIFF/BMP）"
 echo "  ✅ 自动清理旧版本"
 echo "  ✅ 自动刷新系统服务"
 echo "  ✅ 无需手动注册"

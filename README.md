@@ -2,16 +2,15 @@
 
 一个通过右键菜单快速操作实现图片压缩和尺寸调整的Mac工具。
 
-![版本](https://img.shields.io/badge/版本-1.0.1-blue)
-![平台](https://img.shields.io/badge/平台-macOS%2012%2B-lightgrey)
-![语言](https://img.shields.io/badge/语言-Swift-orange)
-
 ## ✨ 特性
 
 - 🚀 **操作方便** - 右键菜单 → 快速操作 → 图片压缩
-- 💾 **智能压缩** - 可选压缩率
+- 💾 **智能压缩** - 可选压缩率（最佳/高/平衡/低）
 - 📊 **批量处理** - 支持同时处理多张图片
-- 🔨 **无外依赖** - 核心为系统自带图像工具，无外部依赖
+- 🖼️ **格式保留** - 输入什么格式，导出即保持该格式（PNG/JPEG/HEIC/WebP/GIF/TIFF/BMP）
+- 🖼️ **WebP 支持** - 原生 WebP 压缩与改分辨率（内置 cwebp，无需额外安装）
+- 🖼️ **PNG 无损压缩** - pngquant 转调色板 PNG，体积直降 60-80%，保留透明通道
+- 🔨 **零外依赖** - PKG 内置 pngquant + cwebp 及全部依赖库，目标机无需 Homebrew
 - 🌓 **深色模式** - 适配 macOS 深色/浅色模式
 
 ## 📖 使用方法
@@ -24,10 +23,24 @@
    - 选择是否启用压缩（默认启用）
    - 选择压缩质量（默认平衡档）
 5. 点击"确定"开始处理
-6. 处理完成的图片保存在原图同目录，文件名为 `原文件名_resized.jpg`
+6. 处理完成的图片保存在原图同目录，文件名为 `原文件名_resized.<原扩展名>`
+   （输入 jpg → 输出 jpg，输入 png → 输出 png，输入 webp → 输出 webp，以此类推）
 
 ![images](./images/interface.png)
 
+
+## 🖼️ 支持的格式与处理方式
+
+| 输入格式 | 改分辨率 | 压缩 | 输出格式 | 压缩工具 |
+|---------|---------|------|---------|---------|
+| PNG | ✓ | ✓ | PNG | pngquant（调色板化，保留透明） |
+| JPEG | ✓ | ✓ | JPEG | sips formatOptions |
+| HEIC | ✓ | ✓ | HEIC | sips formatOptions |
+| WebP | ✓ | ✓ | WebP | cwebp |
+| GIF/TIFF/BMP | ✓ | 跳过（无损格式） | 原格式 | — |
+
+> **无损格式（GIF/TIFF/BMP）不执行压缩**——这些格式本身无损，二次压缩只会增大体积或损失质量。
+> 仅执行缩放，输出保持原格式。PNG 经 pngquant 调色板化后为有损但视觉无损，仍保留透明通道。
 
 ## 🚀 安装&卸载
 

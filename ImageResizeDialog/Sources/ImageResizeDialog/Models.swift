@@ -28,6 +28,7 @@ enum Preset: String, CaseIterable {
 enum ImageFormat: String {
     case png
     case jpeg
+    case heic
     case webp
     case gif
     case tiff
@@ -38,6 +39,7 @@ enum ImageFormat: String {
         switch url.pathExtension.lowercased() {
         case "png":           return .png
         case "jpg", "jpeg":   return .jpeg
+        case "heic", "heif":  return .heic
         case "webp":          return .webp
         case "gif":           return .gif
         case "tif", "tiff":   return .tiff
@@ -48,8 +50,19 @@ enum ImageFormat: String {
     /// 该格式是否原生支持透明通道
     var supportsAlpha: Bool {
         switch self {
-        case .png, .webp, .tiff, .gif: return true
+        case .png, .webp, .tiff, .gif, .heic: return true
         case .jpeg, .unknown: return false
+        }
+    }
+
+    /// sips 可写且支持 formatOptions 有损压缩的格式名（仅 jpeg/heic）。
+    /// 为 nil 表示该格式不通过 sips formatOptions 压缩（png 走 pngquant、webp 走 cwebp、
+    /// gif/tiff/bmp 等无损格式跳过压缩）。
+    var sipsFormatName: String? {
+        switch self {
+        case .jpeg: return "jpeg"
+        case .heic: return "heic"
+        default:    return nil
         }
     }
 }
@@ -210,6 +223,23 @@ func pngQuantArguments(quality: String) -> [String] {
         return ["--quality=50-70", "--speed", "6"]
     default:
         return ["--quality=65-80"]
+    }
+}
+
+// MARK: - WebP Compression Parameters
+
+/// 将 UI 质量档映射为 cwebp 的 -q 质量参数（0-100，典型 80）
+/// - "best":   -q 90（接近无损）
+/// - "low":    -q 50（更激进、体积更小）
+/// - "normal": -q 75（默认推荐值）
+/// - "none":   -q 100（不压缩模式，仅改分辨率时的最高质量重编码）
+/// 固定附加参数（-metadata none / -quiet / -o）由调用方在 WebpCompressor 中拼接
+func webpCompressArguments(quality: String) -> [String] {
+    switch quality {
+    case "best": return ["-q", "90"]
+    case "low":  return ["-q", "50"]
+    case "none": return ["-q", "100"]
+    default:     return ["-q", "75"]
     }
 }
 
