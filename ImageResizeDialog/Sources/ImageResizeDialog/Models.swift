@@ -32,6 +32,7 @@ enum ImageFormat: String {
     case webp
     case gif
     case tiff
+    case svg
     case unknown
 
     /// 根据文件扩展名识别格式（小写）
@@ -43,6 +44,7 @@ enum ImageFormat: String {
         case "webp":          return .webp
         case "gif":           return .gif
         case "tif", "tiff":   return .tiff
+        case "svg":           return .svg
         default:              return .unknown
         }
     }
@@ -50,7 +52,7 @@ enum ImageFormat: String {
     /// 该格式是否原生支持透明通道
     var supportsAlpha: Bool {
         switch self {
-        case .png, .webp, .tiff, .gif, .heic: return true
+        case .png, .webp, .tiff, .gif, .heic, .svg: return true
         case .jpeg, .unknown: return false
         }
     }
@@ -262,33 +264,52 @@ func generateDialogTitle(files: [URL]) -> String {
 
 // MARK: - Error Summary
 
-/// 根据处理结果列表生成错误摘要字符串
-/// - 若无失败结果，返回空字符串
-/// - 否则返回格式化的成功/失败统计及失败文件列表
+/// 错误分类
+enum ErrorCategory: String {
+    case formatUnsupported = "格式不支持"
+    case fileError        = "文件异常"
+}
+
+/// 将单个错误归类到对应分组
+/// - 文件异常：invalidInput / fileNotFound / writePermissionDenied
+/// - 格式不支持：sipsExecutionFailed / unsupportedFormat
+func categorizeError(_ error: ProcessingError) -> ErrorCategory {
+    switch error {
+    case .invalidInput, .fileNotFound, .writePermissionDenied:
+        return .fileError
+    case .sipsExecutionFailed, .unsupportedFormat:
+        return .formatUnsupported
+    }
+}
+
+/// 根据处理结果列表生成分组的错误摘要文本。
+/// 输出格式（按分组排列，每组下列举文件名）：
+///   格式不支持：
+///       file1.svg
+///       file2.svg
+///   文件异常：
+///       file3.jpg
+/// 无失败结果时返回空字符串。
 func generateErrorSummary(results: [ProcessResult]) -> String {
     let failures = results.filter { $0.error != nil }
     guard !failures.isEmpty else { return "" }
 
-    let successCount = results.count - failures.count
-    var lines: [String] = ["处理完成：成功 \(successCount) 张，失败 \(failures.count) 张", "失败文件："]
-
+    // 按分类收集文件名
+    var byCategory: [ErrorCategory: [String]] = [:]
     for result in failures {
         let filename = result.sourceURL.lastPathComponent
-        let description: String
-        switch result.error! {
-        case .fileNotFound:
-            description = "文件不存在"
-        case .writePermissionDenied:
-            description = "无写入权限"
-        case .sipsExecutionFailed(let exitCode, _):
-            description = "sips 执行失败（exit code \(exitCode)）"
-        case .unsupportedFormat:
-            description = "不支持的格式"
-        case .invalidInput(let msg):
-            description = "输入无效：\(msg)"
-        }
-        lines.append("- \(filename)：\(description)")
+        let category = categorizeError(result.error!)
+        byCategory[category, default: []].append(filename)
     }
 
+    // 按固定顺序输出：格式不支持 → 文件异常
+    var lines: [String] = []
+    for category in [ErrorCategory.formatUnsupported, ErrorCategory.fileError] {
+        guard let files = byCategory[category], !files.isEmpty else { continue }
+        lines.append(category.rawValue + "：")
+        for name in files {
+            lines.append("    " + name)
+        }
+    }
     return lines.joined(separator: "\n")
 }
