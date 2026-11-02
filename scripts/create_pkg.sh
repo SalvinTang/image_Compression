@@ -6,7 +6,7 @@
 set -e
 
 PRODUCT_NAME="图片压缩"
-VERSION="1.1.0"
+VERSION="1.0.4"
 IDENTIFIER="com.imagecompress.pkg"
 PKG_NAME="pkg/${PRODUCT_NAME}-${VERSION}.pkg"
 
