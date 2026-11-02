@@ -55,6 +55,7 @@ class ResizeDialogController: NSWindowController {
     private let confirmButton     = NSButton(title: "确定", target: nil, action: nil)
     private let cancelButton      = NSButton(title: "取消", target: nil, action: nil)
     private let progressIndicator = NSProgressIndicator()
+    private let loadingOverlay    = NSView()  // 处理时半透明遮罩层
 
     // MARK: - Init
 
@@ -245,6 +246,12 @@ class ResizeDialogController: NSWindowController {
         confirmButton.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(confirmButton)
 
+        // 加载遮罩层（半透明，自动适配亮/暗色模式），插入最底层
+        loadingOverlay.wantsLayer = true
+        loadingOverlay.isHidden = true
+        loadingOverlay.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(loadingOverlay)
+
         // 进度指示器（默认隐藏）
         progressIndicator.style = .spinning
         progressIndicator.controlSize = .small
@@ -352,9 +359,15 @@ class ResizeDialogController: NSWindowController {
             confirmButton.heightAnchor.constraint(equalToConstant: fh),
             confirmButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -m),
 
-            // ── 进度指示器 ──
-            progressIndicator.topAnchor.constraint(equalTo: qualityPopUp.bottomAnchor, constant: sp),
-            progressIndicator.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: m),
+            // ── 加载遮罩层（覆盖整个内容视图）──
+            loadingOverlay.topAnchor.constraint(equalTo: contentView.topAnchor),
+            loadingOverlay.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            loadingOverlay.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            loadingOverlay.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+
+            // ── 进度指示器（处理时居中显示）──
+            progressIndicator.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            progressIndicator.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
         ])
     }
 
@@ -615,6 +628,16 @@ class ResizeDialogController: NSWindowController {
         let config = buildProcessConfig()
         confirmButton.isEnabled = false
         cancelButton.isEnabled = false
+
+        // 移除宽/高输入框焦点，避免处理时闪动光标
+        widthField.resignFirstResponder()
+        heightField.resignFirstResponder()
+        window?.makeFirstResponder(nil)
+
+        // 显示半透明遮罩 + 进度指示器
+        loadingOverlay.wantsLayer = true
+        loadingOverlay.layer?.backgroundColor = NSColor.underPageBackgroundColor.withAlphaComponent(0.65).cgColor
+        loadingOverlay.isHidden = false
         progressIndicator.isHidden = false
         progressIndicator.startAnimation(nil)
 
@@ -626,6 +649,7 @@ class ResizeDialogController: NSWindowController {
             DispatchQueue.main.async {
                 self.progressIndicator.stopAnimation(nil)
                 self.progressIndicator.isHidden = true
+                self.loadingOverlay.isHidden = true
 
                 let failures = results.filter { !$0.succeeded }
                 if failures.isEmpty {
@@ -634,19 +658,8 @@ class ResizeDialogController: NSWindowController {
                     // 优雅地终止应用
                     NSApplication.shared.terminate(nil)
                 } else {
-                    // 失败：显示错误信息
-                    self.confirmButton.isEnabled = true
-                    self.cancelButton.isEnabled = true
-                    let alert = NSAlert()
-                    alert.messageText = "处理结果"
-                    alert.informativeText = generateErrorSummary(results: results)
-                    alert.alertStyle = .warning
-                    alert.addButton(withTitle: "确定")
-                    if let window = self.window {
-                        alert.beginSheetModal(for: window) { _ in }
-                    } else {
-                        alert.runModal()
-                    }
+                    // 失败：显示分组错误提示，关闭弹窗后自动退出
+                    self.showErrorAlert(results: results)
                 }
             }
         }
@@ -658,6 +671,42 @@ class ResizeDialogController: NSWindowController {
         window?.close()
         // 优雅地终止应用
         NSApplication.shared.terminate(nil)
+    }
+
+    // MARK: - Error Alert
+
+    /// 显示分组的错误提示弹窗。
+    /// 标题「提示」，顶部显示完成摘要（成功X张，失败X张 / 仅失败X张），
+    /// 下方按分类分组列举失败文件名。关闭弹窗后自动退出服务。
+    private func showErrorAlert(results: [ProcessResult]) {
+        let failures = results.filter { !$0.succeeded }
+        let successes = results.count - failures.count
+        let summary = generateErrorSummary(results: results)
+        guard !summary.isEmpty else { return }
+
+        // 完成摘要行：成功>0 显示「成功X张，失败X张」；否则只显示「失败X张」
+        let summaryLine: String
+        if successes > 0 {
+            summaryLine = "处理完成：成功\(successes)张，失败\(failures.count)张"
+        } else {
+            summaryLine = "处理完成：失败\(failures.count)张"
+        }
+        let fullText = summaryLine + "\n\n" + summary
+
+        let alert = NSAlert()
+        alert.messageText = "提示"
+        alert.informativeText = fullText
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "确定")
+
+        if let window = self.window {
+            alert.beginSheetModal(for: window) { _ in
+                NSApplication.shared.terminate(nil)
+            }
+        } else {
+            alert.runModal()
+            NSApplication.shared.terminate(nil)
+        }
     }
 
     // MARK: - Validation Helpers

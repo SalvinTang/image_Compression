@@ -183,6 +183,7 @@ class ImageProcessor {
         //    - PNG + 压缩 → pngquant（保持 PNG，保留透明）
         //    - WebP（任意）→ cwebp 路径（sips 无法写 WebP，必须经 cwebp 编码）
         //    - JPEG/HEIC + 压缩 → 标准路径 + sips formatOptions 有损压缩（保留格式）
+        //    - SVG → 不支持（矢量格式，sips 能读但不能写回 SVG，缩放无意义）
         //    - 其余（无损格式 gif/tiff/bmp、未知格式、或未勾选压缩）→ 标准路径仅缩放、保留格式
         //      （无损格式跳过压缩——需求 Q1 方案 a）
         switch format {
@@ -192,6 +193,8 @@ class ImageProcessor {
             return processWebp(file: file, config: finalConfig, output: output, compress: config.compress)
         case .jpeg where config.compress, .heic where config.compress:
             return processStandard(file: file, config: finalConfig, output: output, compress: true, format: format)
+        case .svg:
+            return ProcessResult(sourceURL: file, outputURL: nil, error: .unsupportedFormat("svg"))
         default:
             return processStandard(file: file, config: finalConfig, output: output, compress: false, format: format)
         }
